@@ -1,0 +1,516 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>Shopping Cart - E Parkville</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <!-- Tailwind CSS Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-primary': 'rgb(42, 57, 123)',
+                        'brand-secondary': 'rgb(249, 248, 244)',
+                        'brand-text': 'rgb(42, 57, 123)',
+                        'brand-heading': 'rgb(42, 57, 123)',
+                        'brand-light': '#ffffff',
+                        'brand-dark': '#000000',
+                    },
+                    borderRadius: {
+                        'button': '22px',
+                        'block': '8px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: rgb(42, 57, 123);
+        }
+        .text-brand-heading { color: rgb(42, 57, 123); }
+        .bg-brand-primary { background-color: rgb(42, 57, 123); }
+        .bg-brand-secondary { background-color: rgb(249, 248, 244); }
+        .border-brand-primary { border-color: rgb(42, 57, 123); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+
+<body 
+    x-data="{
+        mobileMenuOpen: false,
+        searchOpen: false,
+        cart: [
+            { id: 101, name: 'Bobai Sunscreen Stick SPF 50+', brand: 'BOBAI', price: 450.00, originalPrice: 500.00, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png', quantity: 1 },
+            { id: 102, name: 'Shaan Body Milk 300 ml', brand: 'SHAAN', price: 200.00, originalPrice: null, image: 'shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=400.png', quantity: 2 },
+            { id: 103, name: 'Starville Acne Prone Skin Facial Cleanser', brand: 'STARVILLE', price: 220.00, originalPrice: 250.00, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png', quantity: 1 }
+        ],
+        recentlyViewed: [
+            { id: 201, name: 'Clary Hair Fresh Scalp Treatment', brand: 'CLARY', price: 314.50, originalPrice: 370.00, image: 'shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=200.png' },
+            { id: 202, name: 'DERMEDIC CAPILARTE Hair Serum', brand: 'DERMEDIC', price: 272.00, originalPrice: 320.00, image: 'shop/files/2_f1cb9aad-be8b-4d1a-83f1-25df0fee813a_v=1745932747&width=200.png' },
+            { id: 203, name: 'SuperKids Vitamin C Gummies', brand: 'SUPERKIDS', price: 180.00, originalPrice: null, image: 'shop/files/44065-Catalouge-Superkids01_v=1746522148&width=200.png' },
+            { id: 204, name: 'Bobai Sunscreen Stick SPF 50+', brand: 'BOBAI', price: 450.00, originalPrice: 500.00, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png' },
+            { id: 205, name: 'Shaan Body Milk 300 ml', brand: 'SHAAN', price: 200.00, originalPrice: null, image: 'shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=400.png' },
+            { id: 206, name: 'Starville Acne Prone Skin Facial Cleanser', brand: 'STARVILLE', price: 220.00, originalPrice: 250.00, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png' },
+            { id: 207, name: 'Clary Hair Leave In Conditioner', brand: 'CLARY', price: 300.00, originalPrice: null, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png' },
+            { id: 208, name: 'SuperKids Hair Shampoo', brand: 'SUPERKIDS', price: 150.00, originalPrice: 180.00, image: 'shop/files/44065-Catalouge-Superkids03_v=1744704018&width=200.png' },
+            { id: 209, name: 'Starville Face Moisturizer', brand: 'STARVILLE', price: 280.00, originalPrice: 320.00, image: 'shop/files/2_f1cb9aad-be8b-4d1a-83f1-25df0fee813a_v=1745932747&width=200.png' },
+            { id: 210, name: 'Bobai Anti-Aging Serum', brand: 'BOBAI', price: 380.00, originalPrice: 420.00, image: 'shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=200.png' },
+            { id: 211, name: 'Shaan Hand Cream', brand: 'SHAAN', price: 120.00, originalPrice: null, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png' },
+            { id: 212, name: 'SuperKids Toothpaste', brand: 'SUPERKIDS', price: 90.00, originalPrice: 110.00, image: 'shop/files/44065-Catalouge-Superkids01_v=1746522148&width=200.png' }
+        ],
+        get cartTotal() {
+            return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        },
+        get cartItemCount() {
+            return this.cart.reduce((total, item) => total + item.quantity, 0);
+        },
+        get subtotal() {
+            return this.cartTotal;
+        },
+        get shipping() {
+            return this.cartTotal > 500 ? 0 : 50;
+        },
+        get total() {
+            return this.subtotal + this.shipping;
+        },
+        updateQuantity(id, newQuantity) {
+            if (newQuantity < 1) return;
+            const item = this.cart.find(item => item.id === id);
+            if (item) {
+                item.quantity = newQuantity;
+            }
+        },
+        removeItem(id) {
+            this.cart = this.cart.filter(item => item.id !== id);
+        },
+        addToCart(product) {
+            const existingItem = this.cart.find(item => item.id === product.id);
+            if (existingItem) {
+                existingItem.quantity += 1;
+            } else {
+                this.cart.push({ ...product, quantity: 1 });
+            }
+        }
+    }"
+    class="bg-white"
+>
+    <!-- =========== Header Section =========== -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <!-- 1. Announcement Bar -->
+        <div class="bg-brand-primary text-white text-center p-2 text-xs md:text-sm font-medium">
+            <p>FREE SHIPPING for all orders above 500 EGP.</p>
+        </div>
+        <!-- 2. Main Header & Desktop Navigation -->
+        <div class="w-full flex justify-center">
+            <div class="w-full max-w-7xl px-4">
+            <div class="flex justify-between items-center py-3 relative">
+                <!-- Left Side: Mobile Menu & Desktop Search -->
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button @click="mobileMenuOpen = true" class="lg:hidden p-2 text-brand-primary">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                    </button>
+                    <!-- Mobile: search icon only -->
+                    <button @click="searchOpen = true" class="lg:hidden p-2 text-brand-primary">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </button>
+                    <!-- Desktop: full search field -->
+                    <div class="relative hidden lg:block w-96">
+                        <input type="text" placeholder="What are you looking for?" @focus="searchOpen = true" @click="searchOpen = true" readonly class="cursor-pointer border-2 border-brand-primary rounded-full py-2.5 pl-10 pr-4 text-sm w-full focus:outline-none text-brand-primary placeholder-gray-400">
+                        <svg class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                </div>
+
+                <!-- Logo (Centered) -->
+                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <a href="index.html">
+                        <img class="h-8 md:h-12 w-auto" src="shop/files/E_parkville_-_logo-01_25fd7ac1-f989-4593-9830-0224d7ec68f6_v=1652112832&width=460.png" alt="E Parkville Logo">
+                    </a>
+                </div>
+
+                <!-- Right Side: Icons & Language -->
+                <div class="flex items-center gap-2 md:gap-4 pr-2" dir="ltr">
+                    <!-- Language Dropdown first -->
+                    <div x-data="{ openLang: false, selectedLang: 'English' }" class="relative">
+                        <button @click="openLang = !openLang" class="flex items-center gap-1 px-2 py-1 text-brand-primary hover:bg-gray-100 rounded">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.95-4H6.05a6.5 6.5 0 001.9 2.71c.39-.8.71-1.78.9-2.71h4.1zm.73-2a6.47 6.47 0 00.18-2H5.14a6.47 6.47 0 00.18 2h9.36zM8.85 6c-.19-.93-.51-1.91-.9-2.71A6.5 6.5 0 006.05 6h2.8zm2.3 0h2.8a6.5 6.5 0 00-1.9-2.71c-.39.8-.71 1.78-.9 2.71zm-2.3 8c.19.93.51 1.91.9 2.71.79-.64 1.41-1.63 1.9-2.71h-2.8zM4.06 8a6.47 6.47 0 000 2h11.88a6.47 6.47 0 000-2H4.06z"/></svg>
+                            <span class="hidden md:inline" x-text="selectedLang"></span>
+                            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/></svg>
+                        </button>
+                        <ul x-show="openLang" x-transition @click.away="openLang = false" class="absolute right-0 top-full translate-y-2 w-36 bg-white shadow-lg rounded-md py-1 z-20" style="display: none;">
+                            <li>
+                                <button @click="selectedLang = 'English'; openLang = false" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">English</button>
+                            </li>
+                            <li>
+                                <button @click="selectedLang = 'العربية'; openLang = false" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">العربية</button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Account icon second -->
+                    <a href="#" class="p-2 text-brand-primary hover:opacity-75 transition">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    </a>
+
+                    <!-- Cart icon last -->
+                    <a href="cart.html" class="relative p-2 text-brand-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <span x-show="cartItemCount > 0" x-cloak class="absolute top-1 right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center" x-text="cartItemCount"></span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden lg:flex justify-center items-center py-3 border-t border-gray-200">
+                <ul class="flex items-center gap-6 text-sm font-medium text-brand-primary">
+                    <li><a href="index.html" class="hover:opacity-75 transition whitespace-nowrap">Home</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Customer Reviews</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Featured Offers</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Skin Care</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Personal Care</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Hair Care</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Baby & Kids</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Health and Wellness</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Shop By Brand</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Rewards Program</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Beauty Reads & Tips</a></li>
+                </ul>
+            </nav>
+        </div>
+        </div>
+
+        <!-- Mobile Menu Drawer -->
+        <div x-show="mobileMenuOpen" class="lg:hidden fixed inset-0 z-50" @keydown.escape.window="mobileMenuOpen = false" style="display: none;">
+            <div @click="mobileMenuOpen = false" x-show="mobileMenuOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black bg-opacity-50" style="display: none;"></div>
+            <div class="fixed inset-y-0 left-0 w-72 bg-white shadow-xl transform transition ease-in-out duration-300 overflow-y-auto" x-show="mobileMenuOpen" x-transition:enter="transform transition ease-in-out duration-300" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transform transition ease-in-out duration-300" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" style="display: none;">
+                <div class="p-4">
+                    <button @click="mobileMenuOpen = false" class="float-right p-2">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                    <ul class="clear-both pt-12 flex flex-col gap-2 text-brand-primary font-medium">
+                        <li><a href="index.html" class="block py-2 px-2 rounded hover:bg-gray-100">Home</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Customer Reviews</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Featured Offers</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Skin Care</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Personal Care</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Hair Care</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Baby & Kids</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Health and Wellness</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Shop By Brand</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Rewards Program</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Beauty Reads & Tips</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- =========== Main Content =========== -->
+    <main class="min-h-screen bg-brand-secondary pt-8 pb-16">
+        <div class="w-full flex justify-center">
+            <div class="w-full max-w-7xl px-4">
+            <!-- Breadcrumb -->
+            <nav>
+                <ol class="flex items-center gap-2 text-sm text-gray-600">
+                    <li><a href="index.html" class="hover:text-brand-primary transition">Home</a></li>
+                    <li><span class="px-1">/</span></li>
+                    <li class="text-brand-primary font-medium">Shopping Cart</li>
+                </ol>
+            </nav>
+
+            <!-- Page Title -->
+            <div class="text-center pb-8 md:pb-12">
+                <div class="flex flex-col gap-4 items-center">
+                    <h1 class="text-4xl md:text-5xl font-bold text-brand-primary">Shopping Cart</h1>
+                    <p class="text-lg text-gray-600">Review your items and proceed to checkout</p>
+                </div>
+            </div>
+
+            <!-- Cart Content -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                <!-- Cart Items - Left Column -->
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-2xl font-bold text-brand-primary">Cart Items (<span x-text="cartItemCount"></span>)</h2>
+                            <button @click="cart = []" class="text-red-500 hover:text-red-700 text-sm font-medium transition">
+                                Clear All
+                            </button>
+                        </div>
+
+                        <!-- Cart Items List -->
+                        <div x-show="cart.length === 0" class="text-center py-12">
+                            <svg class="h-16 w-16 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                            <div class="flex flex-col gap-2 items-center">
+                                <h3 class="text-lg font-medium text-gray-900">Your cart is empty</h3>
+                                <p class="text-gray-500">Looks like you haven't added any items to your cart yet.</p>
+                            </div>
+                            <a href="index.html" class="inline-flex items-center px-6 py-3 bg-brand-primary text-white font-medium rounded-button hover:bg-opacity-90 transition">
+                                Continue Shopping
+                            </a>
+                        </div>
+
+                        <div x-show="cart.length > 0" class="flex flex-col gap-6">
+                            <template x-for="item in cart" :key="item.id">
+                                <div class="flex items-center gap-5 p-5 bg-white rounded-xl border border-gray-200">
+                                    <!-- Product Image -->
+                                    <div class="flex-shrink-0">
+                                        <img :src="item.image" :alt="item.name" class="w-20 h-20 md:w-24 md:h-24 object-cover rounded-lg">
+                                    </div>
+                                    
+                                    <!-- Product Details -->
+                                    <div class="flex-1 min-w-0">
+                                        <div class="flex items-start justify-between gap-5">
+                                            <div class="flex-1">
+                                                <div class="flex flex-col">
+                                                    <h3 class="text-lg font-semibold text-brand-primary" x-text="item.name"></h3>
+                                                    <p class="text-sm text-gray-600" x-text="item.brand"></p>
+                                                </div>
+                                                <div class="flex items-center gap-2">
+                                                    <span class="text-lg font-bold text-brand-primary" x-text="'EGP ' + item.price.toFixed(2)"></span>
+                                                    <span x-show="item.originalPrice" class="text-sm text-gray-500 line-through" x-text="'EGP ' + item.originalPrice.toFixed(2)"></span>
+                                                </div>
+                                            </div>
+                                            
+                                            <!-- Quantity Controls -->
+                                            <div class="flex items-center gap-2">
+                                                <button @click="updateQuantity(item.id, item.quantity - 1)" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition">
+                                                    <svg class="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                                                    </svg>
+                                                </button>
+                                                <span class="w-12 text-center font-medium text-brand-primary" x-text="item.quantity"></span>
+                                                <button @click="updateQuantity(item.id, item.quantity + 1)" class="w-8 h-8 rounded-full border border-gray-300 flex items-center justify-center hover:bg-gray-100 transition">
+                                                    <svg class="w-4 h-4 text-gray-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                                                    </svg>
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Item Total -->
+                                        <div class="flex items-center justify-between">
+                                            <span class="text-sm text-gray-600">Item Total:</span>
+                                            <span class="font-semibold text-brand-primary" x-text="'EGP ' + (item.price * item.quantity).toFixed(2)"></span>
+                                        </div>
+                                        
+                                        <!-- Remove Button -->
+                                        <button @click="removeItem(item.id)" class="text-red-500 hover:text-red-700 text-sm font-medium transition">
+                                            Remove Item
+                                        </button>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Order Summary - Right Column -->
+                <div class="lg:col-span-1">
+                    <div class="bg-white rounded-2xl shadow-lg p-6 md:p-8 sticky top-24">
+                        <h2 class="text-2xl font-bold text-brand-primary">Order Summary</h2>
+                        
+                        <!-- Summary Details -->
+                        <div class="flex flex-col gap-4">
+                            <div class="flex justify-between text-gray-600">
+                                <span>Subtotal (<span x-text="cartItemCount"></span> items)</span>
+                                <span x-text="'EGP ' + subtotal.toFixed(2)"></span>
+                            </div>
+                            <div class="flex justify-between text-gray-600">
+                                <span>Shipping</span>
+                                <span x-show="shipping === 0" class="text-green-600 font-medium">FREE</span>
+                                <span x-show="shipping > 0" x-text="'EGP ' + shipping.toFixed(2)"></span>
+                            </div>
+                            <div x-show="shipping > 0" class="text-sm text-gray-500">
+                                Free shipping on orders above EGP 500
+                            </div>
+                            <div class="border-t border-gray-200 pt-4 pb-4">
+                                <div class="flex justify-between text-lg font-bold text-brand-primary">
+                                    <span>Total</span>
+                                    <span x-text="'EGP ' + total.toFixed(2)"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Action Buttons -->
+                        <div class="flex flex-col gap-3">
+                            <button x-show="cart.length > 0" class="w-full bg-brand-primary text-white py-4 px-6 rounded-button font-semibold text-lg hover:bg-opacity-90 transition">
+                                Proceed to Checkout
+                            </button>
+                            <a href="index.html" class="block w-full border-2 border-brand-primary text-brand-primary py-3 px-6 rounded-button font-semibold text-center hover:bg-brand-primary hover:text-white transition">
+                                Continue Shopping
+                            </a>
+                        </div>
+
+                        <!-- Security Badge -->
+                        <div class="text-center pt-4">
+                            <div class="flex items-center justify-center gap-2 text-sm text-gray-600">
+                                <svg class="w-5 h-5 text-green-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd" />
+                                </svg>
+                                <span>Secure Checkout</span>
+                            </div>
+                            <p class="text-xs text-gray-500">Your payment information is encrypted and secure</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Recently Viewed Section -->
+            <div class="pt-16">
+                <div class="text-center">
+                    <div class="flex flex-col items-center gap-2">
+                        <h2 class="text-3xl font-bold text-brand-primary">Recently Viewed</h2>
+                        <p class="text-lg text-gray-600">Products you might be interested in</p>
+                    </div>
+                </div>
+                
+                <!-- Carousel Container -->
+                <div x-data="{ currentIndex: 0, itemsPerView: 4 }" class="relative">
+                    <!-- Navigation Buttons -->
+                    <button 
+                        @click="currentIndex = Math.max(0, currentIndex - 1)" 
+                        x-show="currentIndex > 0"
+                        class="absolute left-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-brand-primary hover:bg-gray-50 transition-all duration-300 border border-gray-200"
+                    >
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                        </svg>
+                    </button>
+                    
+                    <button 
+                        @click="currentIndex = Math.min(recentlyViewed.length - itemsPerView, currentIndex + 1)" 
+                        x-show="currentIndex < recentlyViewed.length - itemsPerView"
+                        class="absolute right-4 top-1/2 -translate-y-1/2 z-10 w-12 h-12 bg-white rounded-full shadow-lg flex items-center justify-center text-brand-primary hover:bg-gray-50 transition-all duration-300 border border-gray-200"
+                    >
+                        <svg class="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                        </svg>
+                    </button>
+                    
+                    <!-- Products Container -->
+                    <div class="overflow-hidden">
+                        <div 
+                            class="flex transition-transform duration-500 ease-in-out"
+                            :style="`transform: translateX(-${currentIndex * (100 / itemsPerView)}%)`"
+                        >
+                            <template x-for="product in recentlyViewed" :key="product.id">
+                                <div class="w-full md:w-1/2 lg:w-1/3 xl:w-1/4 flex-shrink-0 px-3">
+                                    <div class="bg-white rounded-2xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300 h-full">
+                                        <!-- Product Image -->
+                                        <div class="relative group">
+                                            <img :src="product.image" :alt="product.name" class="w-full h-48 object-cover">
+                                            <!-- Hover Overlay with Add to Cart Button -->
+                                            <div class="absolute inset-0 bg-black bg-opacity-40 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
+                                                <button @click="addToCart(product)" class="bg-brand-primary text-white px-6 py-3 rounded-button font-semibold hover:bg-opacity-90 transition-all duration-300 transform scale-90 group-hover:scale-100">
+                                                    Add to Cart
+                                                </button>
+                                            </div>
+                                        </div>
+                                        
+                                        <!-- Product Info -->
+                                        <div class="p-4">
+                                            <div class="flex flex-col">
+                                                <p class="text-xs text-gray-500" x-text="product.brand"></p>
+                                                <h3 class="font-semibold text-brand-primary line-clamp-2" x-text="product.name"></h3>
+                                            </div>
+                                            <div class="flex items-center justify-between">
+                                                <div class="flex items-center gap-2">
+                                                    <span class="font-bold text-brand-primary" x-text="'EGP ' + product.price.toFixed(2)"></span>
+                                                    <span x-show="product.originalPrice" class="text-sm text-gray-500 line-through" x-text="'EGP ' + product.originalPrice.toFixed(2)"></span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </template>
+                        </div>
+                    </div>
+                    
+                    <!-- Dots Indicator -->
+                    <div class="flex justify-center pt-6 gap-2">
+                        <template x-for="(_, index) in Math.ceil(recentlyViewed.length / itemsPerView)" :key="index">
+                            <button 
+                                @click="currentIndex = index * itemsPerView"
+                                class="w-3 h-3 rounded-full transition-all duration-300"
+                                :class="currentIndex >= index * itemsPerView && currentIndex < (index + 1) * itemsPerView ? 'bg-brand-primary' : 'bg-gray-300'"
+                            ></button>
+                        </template>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- =========== Footer Section =========== -->
+    <footer class="bg-brand-primary text-white pt-12 pb-6">
+        <div class="w-full flex justify-center">
+            <div class="w-full max-w-7xl px-4 flex flex-col gap-10">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="font-bold text-lg">e-Parkville</h3>
+                    <p class="text-sm text-gray-300">Tax Registration Number is Tax Number 328-210-366.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">Menu</h3>
+                    <ul class="flex flex-col gap-2 text-sm">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">About Us</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Terms and Conditions</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Refund policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">Follow us On Social Media</h3>
+                    <div class="flex gap-4">
+                        <a href="#" class="text-gray-300 hover:text-white transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg></a>
+                        <a href="#" class="text-gray-300 hover:text-white transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218 1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 016.343 2.525c.636-.247 1.363-.416 2.427-.465C9.793 2.013 10.147 2 12.315 2zm0 1.623c-2.392 0-2.73.01-3.688.055-1.002.045-1.52.2-1.928.372a3.284 3.284 0 00-1.18 1.18c-.173.408-.328.926-.372 1.928-.045.958-.055 1.296-.055 3.688s.01 2.73.055 3.688c.045 1.002.2 1.52.372 1.928a3.284 3.284 0 001.18 1.18c.408.173.926.328 1.928.372.958.045 1.296.055 3.688.055s2.73-.01 3.688-.055c1.002-.045 1.52-.2 1.928-.372a3.284 3.284 0 001.18-1.18c.173-.408.328.926.372-1.928.045-.958.055-1.296.055-3.688s-.01-2.73-.055-3.688c-.045-1.002-.2-1.52-.372-1.928a3.284 3.284 0 00-1.18-1.18c-.408-.173-.926-.328-1.928-.372-.958-.045-1.296-.055-3.688-.055zM12.315 8.167a4.148 4.148 0 100 8.296 4.148 4.148 0 000-8.296zm0 6.673a2.525 2.525 0 110-5.05 2.525 2.525 0 010 5.05z" clip-rule="evenodd" /></svg></a>
+                    </div>
+                </div>
+                 <div>
+                     <h3 class="font-bold text-lg">We accept</h3>
+                     <div class="flex items-center gap-2">
+                         <img src="https://fzsA2ciWRjNP.com/cdn/shopifycloud/shopify/assets/payment_icons/visa-319d545c6fd255c9aad55bd3105f2042.svg" class="h-8 bg-white rounded-md p-1">
+                         <img src="https://fzsA2ciWRjNP.com/cdn/shopifycloud/shopify/assets/payment_icons/master-173035bc8124581983d42d878c62e154.svg" class="h-8 bg-white rounded-md p-1">
+                         <img src="https://fzsA2ciWRjNP.com/cdn/shopifycloud/shopify/assets/payment_icons/american_express-2264c9b8b57b23b0b0f7118e6ca7418e.svg" class="h-8 bg-white rounded-md p-1">
+                     </div>
+                 </div>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
+                <p>&copy; 2025 E Parkville. All Rights Reserved. | Customer Service: 15440</p>
+            </div>
+        </div>
+        </div>
+    </footer>
+    
+    <!-- Cookie Policy Bar -->
+    <div x-data="{show:true}" x-show="show" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow z-50" style="display: none;">
+        <div class="w-full flex justify-center">
+            <div class="w-full max-w-7xl px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-2 text-sm text-brand-primary">
+                <p>Cookie policy — I agree to the processing of my data in accordance with the Privacy policy.</p>
+                <div class="flex gap-2">
+                    <button @click="show=false" class="px-4 py-2 rounded-button bg-brand-primary text-white font-semibold">Accept</button>
+                    <button @click="show=false" class="px-4 py-2 rounded-button border border-brand-primary text-brand-primary font-semibold">Decline</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>

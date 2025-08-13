@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>E Parkville - Final Recreation</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <!-- Alpine.js CDN -->
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+
+    <!-- Tailwind CSS Configuration -->
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        'brand-primary': 'rgb(42, 57, 123)',
+                        'brand-secondary': 'rgb(249, 248, 244)',
+                        'brand-text': 'rgb(42, 57, 123)',
+                        'brand-heading': 'rgb(42, 57, 123)',
+                        'brand-light': '#ffffff',
+                        'brand-dark': '#000000',
+                    },
+                    borderRadius: {
+                        'button': '22px',
+                        'block': '8px',
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            color: rgb(42, 57, 123);
+        }
+        .text-brand-heading { color: rgb(42, 57, 123); }
+        .bg-brand-primary { background-color: rgb(42, 57, 123); }
+        .bg-brand-secondary { background-color: rgb(249, 248, 244); }
+        .border-brand-primary { border-color: rgb(42, 57, 123); }
+        .hide-scrollbar::-webkit-scrollbar { display: none; }
+        .hide-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+        [x-cloak] { display: none !important; }
+    </style>
+</head>
+
+<body 
+    x-data="{
+        mobileMenuOpen: false,
+        searchOpen: false,
+        cartOpen: false,
+        cart: [
+            { id: 101, name: 'Bobai Sunscreen Stick SPF 50+', brand: 'BOBAI', price: 450.00, originalPrice: 500.00, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png', quantity: 1 },
+            { id: 102, name: 'Shaan Body Milk 300 ml', brand: 'SHAAN', price: 200.00, originalPrice: null, image: 'shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=400.png', quantity: 2 },
+            { id: 103, name: 'Starville Acne Prone Skin Facial Cleanser', brand: 'STARVILLE', price: 220.00, originalPrice: 250.00, image: 'shop/files/StarvilleAcneProneSkinFacialCleanser400ml_v=1715818307&width=500.png', quantity: 1 }
+        ], // ابدأ بسلة تحتوي على 4 منتجات
+        topPicks: [
+            { id: 2, name: 'Clary Hair Fresh Scalp...', brand: 'CLARY', price: 314.50, originalPrice: 370.00, image: 'shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=200.png' },
+            { id: 3, name: 'Clary Hair Leave In Cre...', brand: 'CLARY', price: 300.00, originalPrice: null, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png' },
+            { id: 4, name: 'DERMEDIC CAPILARTE...', brand: 'DERMEDIC', price: 272.00, originalPrice: 320.00, image: 'shop/files/2_f1cb9aad-be8b-4d1a-83f1-25df0fee813a_v=1745932747&width=200.png' }
+        ],
+        get cartTotal() {
+            return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
+        },
+        get cartItemCount() {
+            return this.cart.reduce((total, item) => total + item.quantity, 0);
+        },
+        // هذه الدالة تفتح السلة وتملأها بمنتجات للعرض فقط
+        openAndFillCart() {
+            // إذا كانت السلة فارغة، املأها بالمنتجات
+            if (this.cart.length === 0) {
+                this.cart = [
+                    { id: 101, name: 'Bobai Sunscreen Stick SPF 50+', brand: 'BOBAI', price: 450.00, originalPrice: 500.00, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png', quantity: 1 },
+                    { id: 102, name: 'Shaan Body Milk 300 ml', brand: 'SHAAN', price: 200.00, originalPrice: null, image: 'shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=400.png', quantity: 2 },
+                    { id: 103, name: 'Starville Acne Prone Skin Facial Cleanser', brand: 'STARVILLE', price: 220.00, originalPrice: 250.00, image: 'shop/files/StarvilleAcneProneSkinFacialCleanser400ml_v=1715818307&width=500.png', quantity: 1 }
+                ];
+            }
+            this.cartOpen = true;
+        },
+        // هذه الدالة تغلق السلة فقط دون تفريغها
+        closeAndEmptyCart() {
+            this.cartOpen = false;
+            // لا تفرغ السلة، اترك المنتجات كما هي
+        },
+        showNotification(message) {
+            const notification = document.createElement('div');
+            notification.className = 'fixed top-4 right-4 bg-green-500 text-white px-6 py-3 rounded-lg shadow-lg z-[70]';
+            notification.innerHTML = `<span>${message}</span>`;
+            document.body.appendChild(notification);
+            setTimeout(() => {
+                if (document.body.contains(notification)) {
+                    document.body.removeChild(notification);
+                }
+            }, 3000);
+        }
+    }"
+    class="bg-white"
+>
+    <!-- =========== Header Section =========== -->
+    <header class="bg-white shadow-sm sticky top-0 z-50">
+        <!-- 1. Announcement Bar -->
+        <div class="bg-brand-primary text-white text-center p-2 text-xs md:text-sm font-medium">
+            <p>FREE SHIPPING for all orders.</p>
+        </div>
+        <!-- 2. Main Header & Desktop Navigation -->
+        <div class="w-full flex justify-center">
+            <div class="w-full max-w-7xl px-4">
+            <div class="flex justify-between items-center py-3 relative">
+                <!-- Left Side: Mobile Menu & Desktop Search -->
+                <div class="flex items-center gap-2 md:gap-4">
+                    <button @click="mobileMenuOpen = true" class="lg:hidden p-2 text-brand-primary">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7" /></svg>
+                    </button>
+                    <!-- Mobile: search icon only -->
+                    <button @click="searchOpen = true; $nextTick(() => $refs.searchOverlayField?.focus())" class="lg:hidden p-2 text-brand-primary">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </button>
+                    <!-- Desktop: full search field -->
+                    <div class="relative hidden lg:block w-96">
+                        <input type="text" placeholder="What are you looking for?" @focus="searchOpen = true; $nextTick(() => $refs.searchOverlayField?.focus())" @click="searchOpen = true; $nextTick(() => $refs.searchOverlayField?.focus())" readonly class="cursor-pointer border-2 border-brand-primary rounded-full py-2.5 pl-10 pr-4 text-sm w-full focus:outline-none text-brand-primary placeholder-gray-400">
+                        <svg class="h-5 w-5 absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+                    </div>
+                </div>
+
+                <!-- Logo (Centered) -->
+                <div class="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2">
+                    <a href="#">
+                        <img class="h-8 md:h-12 w-auto" src="shop/files/E_parkville_-_logo-01_25fd7ac1-f989-4593-9830-0224d7ec68f6_v=1652112832&width=460.png" alt="E Parkville Logo">
+                    </a>
+                </div>
+
+                <!-- Right Side: Icons & Language -->
+                <div class="flex items-center gap-2 md:gap-4 pr-2" dir="ltr">
+                    <!-- Language Dropdown first -->
+                    <div x-data="{ openLang: false, selectedLang: 'English' }" class="relative">
+                        <button @click="openLang = !openLang" class="flex items-center gap-1 px-2 py-1 text-brand-primary hover:bg-gray-100 rounded">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.95-4H6.05a6.5 6.5 0 001.9 2.71c.39-.8.71-1.78.9-2.71h4.1zm.73-2a6.47 6.47 0 00.18-2H5.14a6.47 6.47 0 00.18 2h9.36zM8.85 6c-.19-.93-.51-1.91-.9-2.71A6.5 6.5 0 006.05 6h2.8zm2.3 0h2.8a6.5 6.5 0 00-1.9-2.71c-.39.8-.71 1.78-.9 2.71zm-2.3 8c.19.93.51 1.91.9 2.71.79-.64 1.41-1.63 1.9-2.71h-2.8zM4.06 8a6.47 6.47 0 000 2h11.88a6.47 6.47 0 000-2H4.06z"/></svg>
+                            <span class="hidden md:inline" x-text="selectedLang"></span>
+                            <svg class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.23 7.21a.75.75 0 011.06.02L10 10.94l3.71-3.71a.75.75 0 111.06 1.06l-4.24 4.24a.75.75 0 01-1.06 0L5.21 8.29a.75.75 0 01.02-1.08z" clip-rule="evenodd"/></svg>
+                        </button>
+                        <ul x-show="openLang" x-transition @click.away="openLang = false" class="absolute right-0 top-full translate-y-2 w-36 bg-white shadow-lg rounded-md py-1 z-20" style="display: none;">
+                            <li>
+                                <button @click="selectedLang = 'English'; openLang = false" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">English</button>
+                            </li>
+                            <li>
+                                <button @click="selectedLang = 'العربية'; openLang = false" class="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">العربية</button>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Account icon second -->
+                    <a href="#" class="p-2 text-brand-primary hover:opacity-75 transition">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" /></svg>
+                    </a>
+
+                    <!-- Cart icon last -->
+                    <!-- *** تعديل: هذا الزر سيقوم بفتح السلة وعرض المنتجات *** -->
+                    <a id="cart-open-btn" href="#" @click.prevent="openAndFillCart()" class="relative p-2 text-brand-primary">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                        <span x-show="cartItemCount > 0" x-cloak class="absolute top-1 right-1 h-4 w-4 bg-red-500 text-white text-xs rounded-full flex items-center justify-center" x-text="cartItemCount"></span>
+                    </a>
+                </div>
+            </div>
+            
+            <!-- Desktop Navigation -->
+            <nav class="hidden lg:flex justify-center items-center py-3 border-t border-gray-200">
+                <ul class="flex items-center gap-6 text-sm font-medium text-brand-primary">
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Home</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Customer Reviews</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Featured Offers</a></li>
+
+                    <li x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" @mouseenter="open = true" class="flex items-center gap-1 hover:opacity-75 transition whitespace-nowrap">Skin Care<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></button>
+                        <ul x-show="open" @mouseleave="open = false" x-transition class="absolute left-0 top-full translate-y-2 w-56 bg-white shadow-lg rounded-md py-1 z-20" style="display: none;">
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Sunscreens</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Facial Cleansers</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Face Moisturizers</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Acne Treatment</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Whitening and Even Tone Skin</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Personal Care</a></li>
+
+                    <li x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" @mouseenter="open = true" class="flex items-center gap-1 hover:opacity-75 transition whitespace-nowrap">Hair Care<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></button>
+                        <ul x-show="open" @mouseleave="open = false" x-transition class="absolute left-0 top-full translate-y-2 w-64 bg-white shadow-lg rounded-md py-1 z-20" style="display: none;">
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Hair Serum and Mask</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Shampoo and Conditioners</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Hair Fall Treatment</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Hair Styling</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Hair Nutrition</a></li>
+                        </ul>
+                    </li>
+
+                    <li x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" @mouseenter="open = true" class="flex items-center gap-1 hover:opacity-75 transition whitespace-nowrap">Baby & Kids<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></button>
+                        <ul x-show="open" @mouseleave="open = false" x-transition class="absolute left-0 top-full translate-y-2 w-64 bg-white shadow-lg rounded-md py-1 z-20" style="display: none;">
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Baby Care Products</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Kids Hair Products</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Kids Hygiene Essentials</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Kids Care Products</a></li>
+                        </ul>
+                    </li>
+
+                    <li x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" @mouseenter="open = true" class="flex items-center gap-1 hover:opacity-75 transition whitespace-nowrap">Health and Wellness<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></button>
+                        <ul x-show="open" @mouseleave="open = false" x-transition class="absolute left-0 top-full translate-y-2 w-56 bg-white shadow-lg rounded-md py-1 z-20" style="display: none;">
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Vitamins & Supplements</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Wellness</a></li>
+                        </ul>
+                    </li>
+
+                    <li x-data="{ open: false }" class="relative">
+                        <button @click="open = !open" @mouseenter="open = true" class="flex items-center gap-1 hover:opacity-75 transition whitespace-nowrap">Shop By Brand<svg class="h-4 w-4" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" /></svg></button>
+                        <ul x-show="open" @mouseleave="open = false" x-transition class="absolute left-0 top-full translate-y-2 w-56 bg-white shadow-lg rounded-md py-1 z-20 max-h-72 overflow-auto" style="display: none;">
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Starville</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Bobai</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Shaan</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Clary</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Seropipe</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Glamy Lab</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Strongville</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">StrongVille Men</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">SuperKids</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Nolaver</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Ginipin</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Bloomville</a></li>
+                            <li><a href="#" class="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 whitespace-nowrap">Sulfax</a></li>
+                        </ul>
+                    </li>
+
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Rewards Program</a></li>
+                    <li><a href="#" class="hover:opacity-75 transition whitespace-nowrap">Beauty Reads & Tips</a></li>
+                </ul>
+            </nav>
+            </div>
+        </div>
+
+        <!-- Mobile Menu Drawer -->
+        <div x-show="mobileMenuOpen" class="lg:hidden fixed inset-0 z-50" @keydown.escape.window="mobileMenuOpen = false" style="display: none;">
+            <div @click="mobileMenuOpen = false" x-show="mobileMenuOpen" x-transition:enter="ease-out duration-300" x-transition:enter-start="opacity-0" x-transition:enter-end="opacity-100" x-transition:leave="ease-in duration-200" x-transition:leave-start="opacity-100" x-transition:leave-end="opacity-0" class="fixed inset-0 bg-black bg-opacity-50" style="display: none;"></div>
+            <div class="fixed inset-y-0 left-0 w-72 bg-white shadow-xl transform transition ease-in-out duration-300 overflow-y-auto" x-show="mobileMenuOpen" x-transition:enter="transform transition ease-in-out duration-300" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transform transition ease-in-out duration-300" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" style="display: none;">
+                <div class="p-4">
+                    <button @click="mobileMenuOpen = false" class="float-right p-2">
+                        <svg class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
+                    <ul class="clear-both pt-12 flex flex-col gap-2 text-brand-primary font-medium">
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Home</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Customer Reviews</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Featured Offers</a></li>
+
+                        <li x-data="{ open: false }">
+                            <button @click="open = !open" class="w-full flex justify-between items-center py-2 px-2 rounded hover:bg-gray-100"><span>Skin Care</span><svg class="w-5 h-5 transform transition-transform" :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                            <ul x-show="open" x-collapse class="pl-4 text-sm font-normal" style="display: none; height: 0px; overflow: hidden;" :style="open ? { height: $el.scrollHeight + 'px' } : {}">
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Sunscreens</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Facial Cleansers</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Face Moisturizers</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Acne Treatment</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Whitening and Even Tone Skin</a></li>
+                            </ul>
+                        </li>
+
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Personal Care</a></li>
+
+                         <li x-data="{ open: false }">
+                            <button @click="open = !open" class="w-full flex justify-between items-center py-2 px-2 rounded hover:bg-gray-100"><span>Hair Care</span><svg class="w-5 h-5 transform transition-transform" :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                            <ul x-show="open" x-collapse class="pl-4 text-sm font-normal" style="display: none; height: 0px; overflow: hidden;" :style="open ? { height: $el.scrollHeight + 'px' } : {}">
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Hair Serum and Mask</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Shampoo and Conditioners</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Hair Fall Treatment</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Hair Styling</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Hair Nutrition</a></li>
+                            </ul>
+                        </li>
+
+                        <li x-data="{ open: false }">
+                            <button @click="open = !open" class="w-full flex justify-between items-center py-2 px-2 rounded hover:bg-gray-100"><span>Baby & Kids</span><svg class="w-5 h-5 transform transition-transform" :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                            <ul x-show="open" x-collapse class="pl-4 text-sm font-normal" style="display: none; height: 0px; overflow: hidden;" :style="open ? { height: $el.scrollHeight + 'px' } : {}">
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Baby Care Products</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Kids Hair Products</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Kids Hygiene Essentials</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Kids Care Products</a></li>
+                            </ul>
+                        </li>
+
+                        <li x-data="{ open: false }">
+                            <button @click="open = !open" class="w-full flex justify-between items-center py-2 px-2 rounded hover:bg-gray-100"><span>Health and Wellness</span><svg class="w-5 h-5 transform transition-transform" :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                            <ul x-show="open" x-collapse class="pl-4 text-sm font-normal" style="display: none; height: 0px; overflow: hidden;" :style="open ? { height: $el.scrollHeight + 'px' } : {}">
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Vitamins & Supplements</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Wellness</a></li>
+                            </ul>
+                        </li>
+
+                        <li x-data="{ open: false }">
+                            <button @click="open = !open" class="w-full flex justify-between items-center py-2 px-2 rounded hover:bg-gray-100"><span>Shop By Brand</span><svg class="w-5 h-5 transform transition-transform" :class="{'rotate-180': open}" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg></button>
+                            <ul x-show="open" x-collapse class="pl-4 text-sm font-normal max-h-56 overflow-auto" style="display: none; height: 0px; overflow: hidden;" :style="open ? { height: $el.scrollHeight + 'px' } : {}">
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Starville</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Bobai</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Shaan</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Clary</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Seropipe</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Glamy Lab</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Strongville</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">StrongVille Men</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">SuperKids</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Nolaver</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Ginipin</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Bloomville</a></li>
+                                <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Sulfax</a></li>
+                            </ul>
+                        </li>
+
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Rewards Program</a></li>
+                        <li><a href="#" class="block py-2 px-2 rounded hover:bg-gray-100">Beauty Reads & Tips</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Search Drawer (side panel) -->
+    <div x-show="searchOpen" class="fixed inset-0 z-[60]" style="display: none;" @keydown.escape.window="searchOpen = false">
+        <!-- Backdrop -->
+        <div x-show="searchOpen" @click="searchOpen=false" x-transition.opacity class="absolute inset-0 bg-black/30" style="display: none;"></div>
+        <!-- Drawer -->
+        <aside x-show="searchOpen" x-transition:enter="transform transition ease-in-out duration-300" x-transition:enter-start="-translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transform transition ease-in-out duration-300" x-transition:leave-start="translate-x-0" x-transition:leave-end="-translate-x-full" class="absolute top-0 left-0 h-full w-[min(90vw,420px)] bg-white shadow-xl flex flex-col" style="display: none;">
+            <!-- Top search row -->
+            <div class="flex items-center gap-3 px-4 py-4 border-b">
+                <svg class="h-5 w-5 text-brand-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
+                <input x-ref="searchOverlayField" type="text" placeholder="What are you looking for?" class="flex-1 border-0 outline-none text-brand-primary placeholder-brand-primary/60">
+                <button @click="searchOpen=false" class="p-2"><svg class="h-5 w-5 text-brand-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg></button>
+            </div>
+            <!-- Links -->
+            <div class="flex-1 overflow-y-auto px-4 py-6 text-brand-primary">
+                <nav class="flex flex-col gap-8">
+                    <div>
+                        <ul class="flex flex-col gap-6">
+                            <li class="uppercase tracking-widest text-xs">Home</li>
+                            <li class="uppercase tracking-widest text-xs">Customer Reviews</li>
+                            <li class="uppercase tracking-widest text-xs">Featured Offers</li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="uppercase tracking-widest text-xs">Skin Care</h4>
+                        <ul class="flex flex-col gap-3">
+                            <li><a href="#" class="hover:underline">Sunscreens</a></li>
+                            <li><a href="#" class="hover:underline">Facial Cleansers</a></li>
+                            <li><a href="#" class="hover:underline">Face Moisturizers</a></li>
+                            <li><a href="#" class="hover:underline">Acne Treatment</a></li>
+                            <li><a href="#" class="hover:underline">Whitening and Even Tone Skin</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="uppercase tracking-widest text-xs">Personal Care</h4>
+                    </div>
+
+                    <div>
+                        <h4 class="uppercase tracking-widest text-xs">Hair Care</h4>
+                        <ul class="flex flex-col gap-3">
+                            <li><a href="#" class="hover:underline">Hair Serum and Mask</a></li>
+                            <li><a href="#" class="hover:underline">Shampoo and Conditioners</a></li>
+                            <li><a href="#" class="hover:underline">Hair Fall Treatment</a></li>
+                            <li><a href="#" class="hover:underline">Hair Styling</a></li>
+                            <li><a href="#" class="hover:underline">Hair Nutrition</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="uppercase tracking-widest text-xs">Baby & Kids</h4>
+                    </div>
+
+                    <div>
+                        <h4 class="uppercase tracking-widest text-xs">Health and Wellness</h4>
+                        <ul class="flex flex-col gap-3">
+                            <li><a href="#" class="hover:underline">Vitamins & Supplements</a></li>
+                            <li><a href="#" class="hover:underline">Wellness</a></li>
+                        </ul>
+                    </div>
+
+                    <div>
+                        <h4 class="uppercase tracking-widest text-xs">Shop By Brand</h4>
+                        <ul class="columns-2 gap-6"></ul>
+                    </div>
+                </nav>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Cart Drawer (side panel) -->
+    <div x-cloak x-show="cartOpen" class="fixed inset-0 z-[60]" @keydown.escape.window="closeAndEmptyCart()">
+        <!-- Backdrop -->
+        <div x-show="cartOpen" @click="closeAndEmptyCart()" x-transition.opacity class="absolute inset-0 bg-black/30" style="display: none;"></div>
+        <!-- Drawer -->
+        <!-- *** تعديل: تم جعل السلة flexbox رأسياً لتثبيت الهيدر والفوتر *** -->
+        <aside x-show="cartOpen" x-transition:enter="transform transition ease-in-out duration-300" x-transition:enter-start="translate-x-full" x-transition:enter-end="translate-x-0" x-transition:leave="transform transition ease-in-out duration-300" x-transition:leave-start="translate-x-0" x-transition:leave-end="translate-x-full" class="absolute top-0 right-0 h-full w-[min(95vw,780px)] bg-white shadow-xl flex flex-col" style="display: none;">
+            <!-- Top cart row (Header) -->
+            <div class="flex items-center justify-between px-4 py-4 border-b flex-shrink-0">
+                <div class="flex items-center gap-2">
+                    <svg class="h-6 w-6 text-brand-primary" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                    <h3 class="text-lg font-bold text-brand-primary" x-text="`Cart (${cartItemCount} item${cartItemCount !== 1 ? 's' : ''})`"></h3>
+                </div>
+                <!-- *** تعديل: هذا الزر يغلق ويفرغ السلة *** -->
+                <button @click="closeAndEmptyCart()" class="p-2">
+                    <svg class="h-5 w-5 text-brand-primary" viewBox="0 0 24 24" fill="none" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+                </button>
+            </div>
+            
+            <!-- Cart with Products Content -->
+            <!-- *** تعديل: تم جعل هذا الجزء هو القابل للتمرير فقط *** -->
+            <div class="flex-1 flex overflow-y-auto">
+                <!-- Left Side: TOP PICKS Section -->
+                    <div class="w-72 px-4 py-4 border-r border-gray-200 hidden md:block">
+                    <h4 class="text-sm font-bold text-gray-800">TOP PICKS</h4>
+                    <div class="flex flex-col gap-3">
+                        <template x-for="product in topPicks" :key="product.id">
+                            <div class="flex flex-col items-center text-center gap-2">
+                                <img :src="product.image" :alt="product.name" class="w-20 h-20 object-cover rounded">
+                                <div class="w-full">
+                                    <p class="text-xs text-gray-500 uppercase" x-text="product.brand"></p>
+                                    <h5 class="text-xs font-medium text-gray-800" x-text="product.name"></h5>
+                                    <div class="flex flex-col items-center gap-1">
+                                        <span class="text-xs font-bold text-red-500" x-text="`LE ${product.price.toFixed(2)}`"></span>
+                                        <span x-show="product.originalPrice" class="text-xs text-gray-400 line-through" x-text="`LE ${product.originalPrice.toFixed(2)}`" style="display: none;"></span>
+                                    </div>
+                                </div>
+                                <button class="text-xs text-brand-primary underline hover:no-underline">+ Add to cart</button>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+
+                <!-- Right Side: Cart Items -->
+                <div class="flex-1 px-4 py-4">
+                    <template x-for="item in cart" :key="item.id">
+                        <div class="flex items-start gap-3 py-3 border-b border-gray-100">
+                            <img :src="item.image" :alt="item.brand" class="w-20 h-20 object-cover rounded">
+                            <div class="flex-1">
+                                <p class="text-xs text-gray-500 uppercase" x-text="item.brand"></p>
+                                <h4 class="text-sm font-semibold text-gray-800" x-text="item.name"></h4>
+                                <div class="flex items-center justify-between">
+                                    <div class="flex items-center gap-2">
+                                        <!-- *** تعديل: تم حذف وظيفة الأزرار، أصبحت للعرض فقط *** -->
+                                        <button class="w-6 h-6 border border-gray-300 rounded flex items-center justify-center text-gray-600">-</button>
+                                        <span class="text-sm font-medium min-w-[20px] text-center" x-text="item.quantity"></span>
+                                        <button class="w-6 h-6 border border-gray-300 rounded flex items-center justify-center text-gray-600">+</button>
+                                    </div>
+                                    <!-- *** تعديل: تم حذف وظيفة الزر، أصبح للعرض فقط *** -->
+                                    <button class="text-xs text-red-500 hover:underline">Remove</button>
+                                </div>
+                                <div class="text-right">
+                                    <span class="text-sm font-bold text-red-500" x-text="`LE ${(item.price * item.quantity).toFixed(2)}`"></span>
+                                    <span x-show="item.originalPrice" class="text-xs text-gray-400 line-through" x-text="`LE ${(item.originalPrice * item.quantity).toFixed(2)}`" style="display: none;"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+
+            <!-- Cart Footer (Checkout Button) -->
+            <!-- *** تعديل: تم جعل هذا الجزء ثابتاً في الأسفل *** -->
+            <div class="border-t px-4 py-4 flex-shrink-0">
+                <button class="relative w-full h-14 md:h-16 rounded-full bg-brand-primary text-white font-semibold">
+                    <span class="absolute left-4 md:left-5 top-1/2 -translate-y-1/2 flex items-center justify-center w-9 h-9 md:w-10 md:h-10 rounded-md bg-white/15">
+                        <svg class="w-4 h-4 md:w-5 md:h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                    </span>
+                    <span class="absolute inset-0 flex items-center justify-center gap-3 pointer-events-none">
+                        <span class="uppercase tracking-[0.25em]">CHECKOUT</span>
+                        <span class="opacity-90">•</span>
+                        <span class="font-bold" x-text="`LE ${cartTotal.toFixed(2)} EGP`"></span>
+                    </span>
+                </button>
+            </div>
+        </aside>
+    </div>
+
+    <!-- =========== Main Content =========== -->
+    <main>
+        
+        <!-- Slideshow Section -->
+        <section x-data="{ currentSlide: 1, totalSlides: 5, autoplay: null }" x-init="autoplay = setInterval(() => { currentSlide = (currentSlide % totalSlides) + 1 }, 6000)" @mouseenter="clearInterval(autoplay)" @mouseleave="autoplay = setInterval(() => { currentSlide = (currentSlide % totalSlides) + 1 }, 6000)" class="relative w-full h-[50vh] md:h-[70vh] lg:h-[85vh] overflow-hidden">
+            <div x-show="currentSlide === 1" x-transition:opacity.duration.700ms class="absolute inset-0" style="display: none;"><img src="shop/files/1000_x_1400_Made_With_Science_and_Love_copy_v=1753713920&width=3000.png" class="w-full h-full object-cover" alt="Dermadic Banner"><div class="absolute inset-0 flex items-end justify-center pb-12 md:pb-24"><a href="#" class="bg-white text-black py-2 px-8 rounded-button font-bold hover:bg-opacity-90 transition text-sm md:text-base">SHOP NOW</a></div></div>
+            <div x-show="currentSlide === 2" x-transition:opacity.duration.700ms class="absolute inset-0" style="display: none;"><img src="shop/collections/Sunscreen_1320_x_1480_px_v=1752474059&width=1200.jpg" class="w-full h-full object-cover" alt="Straville Banner"><div class="absolute inset-0 flex items-end justify-center pb-12 md:pb-24"><a href="#" class="bg-white text-black py-2 px-8 rounded-button font-bold hover:bg-opacity-90 transition text-sm md:text-base">SHOP NOW</a></div></div>
+            <div x-show="currentSlide === 3" x-transition:opacity.duration.700ms class="absolute inset-0" style="display: none;"><img src="shop/collections/Sunscreen_1320_x_1480_px_1100_x_1400_px_4_v=1752473684&width=1200.jpg" class="w-full h-full object-cover" alt="Glamy Lab Banner"><div class="absolute inset-0 flex items-end justify-center pb-12 md:pb-24"><a href="#" class="bg-white text-black py-2 px-8 rounded-button font-bold hover:bg-opacity-90 transition text-sm md:text-base">SHOP NOW</a></div></div>
+            <div x-show="currentSlide === 4" x-transition:opacity.duration.700ms class="absolute inset-0" style="display: none;"><img src="shop/collections/Sunscreen_1320_x_1480_px_1100_x_1400_px_1_v=1752474408&width=1200.jpg" class="w-full h-full object-cover" alt="Shaan Banner"><div class="absolute inset-0 flex items-end justify-center pb-12 md:pb-24"><a href="#" class="bg-white text-black py-2 px-8 rounded-button font-bold hover:bg-opacity-90 transition text-sm md:text-base">SHOP NOW</a></div></div>
+            <div x-show="currentSlide === 5" x-transition:opacity.duration.700ms class="absolute inset-0" style="display: none;"><img src="shop/collections/nutrition_314x479_copy_v=1752475625&width=1200.png" class="w-full h-full object-cover" alt="Clary Banner"><div class="absolute inset-0 flex items-end justify-center pb-12 md:pb-24"><a href="#" class="bg-white text-black py-2 px-8 rounded-button font-bold hover:bg-opacity-90 transition text-sm md:text-base">SHOP NOW</a></div></div>
+            <div class="absolute bottom-5 left-1/2 -translate-x-1/2 flex gap-2">
+                <template x-for="i in totalSlides" :key="i"><button @click="currentSlide = i" class="h-2 w-8" :class="{'bg-white': currentSlide === i, 'bg-white/50': currentSlide !== i}"></button></template>
+            </div>
+        </section>
+        
+        <!-- Brands Section (Alpine.js slider) -->
+        <section class="py-16 bg-white" x-data="{
+            brands: [
+                {src: 'shop/files/DERMEDIC_logo_Pantone_426_d3852c54-a70a-4bde-a373-1e6e39327101_v=1753274497&width=400.png', alt: 'Dermedic'},
+                {src: 'shop/files/1_4ca34bad-a1c6-4f4b-9b21-048a97fbc003_v=1733876025&width=400.png', alt: 'Bobai'},
+                {src: 'shop/files/2_06649fc4-b89f-49b0-993b-d54889ba1d62_v=1737462058&width=400.png', alt: 'Shaan'},
+                {src: 'shop/files/2_f1cb9aad-be8b-4d1a-83f1-25df0fee813a_v=1745932747&width=400.png', alt: 'Clary'},
+                {src: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png', alt: 'Breath Day'},
+                {src: 'shop/files/5_a6c31e44-d810-4f57-b0fa-134113f5a8e5_v=1736851509&width=400.png', alt: 'Glamy Lab'},
+                {src: 'shop/files/E_parkville_-_logo-01_25fd7ac1-f989-4593-9830-0224d7ec68f6_v=1652112832&width=460.png', alt: 'E Parkville'}
+            ],
+            start: 0,
+            perView: 5,
+            maxStart() { return Math.max(0, this.brands.length - this.perView) },
+            updatePerView() {
+                this.perView = window.innerWidth >= 1280 ? 6 : (window.innerWidth >= 1024 ? 5 : (window.innerWidth >= 768 ? 3 : 2));
+                if (this.start > this.maxStart()) this.start = this.maxStart();
+            },
+            next() { if (this.start < this.maxStart()) this.start += 1 },
+            prev() { if (this.start > 0) this.start -= 1 },
+            visible(i) { return i >= this.start && i < this.start + this.perView }
+        }" x-init="updatePerView(); window.addEventListener('resize', () => updatePerView())">
+             <div class="w-full flex justify-center">
+                <div class="w-full max-w-7xl px-4 flex flex-col gap-10">
+                <h2 class="text-3xl font-bold text-center text-brand-heading">Parkville Brands</h2>
+                <div class="relative">
+                    <button @click="prev()" class="hidden md:flex absolute -left-2 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-200 rounded-full p-3 shadow hover:bg-gray-50" aria-label="prev">
+                        <img src="shop/t/53/assets/arrow-left_v=76393268265415640921754225006.svg" class="w-5 h-5" alt="prev">
+                    </button>
+                    <button @click="next()" class="hidden md:flex absolute -right-2 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-200 rounded-full p-3 shadow hover:bg-gray-50" aria-label="next">
+                        <img src="shop/t/53/assets/arrow-right_v=145833476934664455061754225006.svg" class="w-5 h-5" alt="next">
+                    </button>
+
+                    <div class="grid gap-12 items-center" :class="{
+                           'grid-cols-2': perView === 2,
+                           'grid-cols-3': perView === 3,
+                           'grid-cols-5': perView === 5,
+                           'grid-cols-6': perView === 6
+                         }">
+                        <template x-for="(b, idx) in brands" :key="idx">
+                            <div x-show="visible(idx)" x-transition class="flex items-center justify-center" style="display: none;">
+                                <img :src="b.src" :alt="b.alt" class="h-16 md:h-24 object-contain">
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- Shop by Category Section (two-by-two cards with overlay text) -->
+        <section class="py-16 bg-white">
+            <div class="w-full flex justify-center">
+                <div class="w-full max-w-7xl px-4 flex flex-col gap-10">
+                <h2 class="text-3xl font-bold text-center text-brand-heading">Shop by Category</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-16">
+                    <!-- Skin Care Card -->
+                    <a href="#" class="block group">
+                        <div class="relative overflow-hidden rounded-3xl shadow-md aspect-[1/1]">
+                            <img src="shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=1000.png" alt="Skin Care" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 flex items-end p-6 md:p-8">
+                                <div class="text-white font-extrabold leading-[0.9] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                                    <div class="text-5xl md:text-6xl">SKIN</div>
+                                    <div class="text-5xl md:text-6xl">CARE</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="uppercase tracking-wide text-brand-primary font-bold">Shop Now</span>
+                        </div>
+                    </a>
+
+                    <!-- Hair Care Card -->
+                    <a href="#" class="block group">
+                        <div class="relative overflow-hidden rounded-3xl shadow-md aspect-[1/1]">
+                            <img src="shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=1000.png" alt="Hair Care" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 flex items-end p-6 md:p-8">
+                                <div class="text-white font-extrabold leading-[0.9] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                                    <div class="text-5xl md:text-6xl">HAIR</div>
+                                    <div class="text-5xl md:text-6xl">CARE</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="uppercase tracking-wide text-brand-primary font-bold">Shop Now</span>
+                        </div>
+                    </a>
+
+                    <!-- Baby & Kids Card -->
+                    <a href="#" class="block group">
+                        <div class="relative overflow-hidden rounded-3xl shadow-md aspect-[1/1]">
+                            <img src="shop/files/44065-Catalouge-Superkids03_v=1744704018&width=1000.png" alt="Baby & Kids" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 flex items-end p-6 md:p-8">
+                                <div class="text-white font-extrabold leading-[0.9] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                                    <div class="text-5xl md:text-6xl">BABY &</div>
+                                    <div class="text-5xl md:text-6xl">KIDS</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="uppercase tracking-wide text-brand-primary font-bold">Shop Now</span>
+                        </div>
+                    </a>
+
+                    <!-- Health & Wellness Card -->
+                    <a href="#" class="block group">
+                        <div class="relative overflow-hidden rounded-3xl shadow-md aspect-[1/1]">
+                            <img src="shop/files/1000_x_1400_Made_With_Science_and_Love_copy_v=1753713920&width=1200.png" alt="Health & Wellness" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                            <div class="absolute inset-0 flex items-end p-6 md:p-8">
+                                <div class="text-white font-extrabold leading-[0.9] drop-shadow-[0_2px_8px_rgba(0,0,0,0.5)]">
+                                    <div class="text-5xl md:text-6xl">HEALTH &</div>
+                                    <div class="text-5xl md:text-6xl">WELLNESS</div>
+                                </div>
+                            </div>
+                        </div>
+                        <div>
+                            <span class="uppercase tracking-wide text-brand-primary font-bold">Shop Now</span>
+                        </div>
+                    </a>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- Trending Products Section -->
+        <section x-data="{ activeTab: 'new' }" class="py-16 bg-brand-secondary">
+            <div class="w-full flex justify-center">
+                <div class="w-full max-w-7xl px-4 flex flex-col gap-10">
+                <h2 class="text-3xl font-bold text-center text-brand-heading">TRENDING</h2>
+                <div class="flex justify-center border-b">
+                    <button @click="activeTab = 'new'" :class="{ 'border-brand-primary text-brand-primary': activeTab === 'new', 'border-transparent text-gray-500': activeTab !== 'new' }" class="py-2 px-6 border-b-2 font-semibold transition text-lg">New Arrivals</button>
+                    <button @click="activeTab = 'selling'" :class="{ 'border-brand-primary text-brand-primary': activeTab === 'selling', 'border-transparent text-gray-500': activeTab !== 'selling' }" class="py-2 px-6 border-b-2 font-semibold transition text-lg">Top Selling</button>
+                </div>
+
+                <div x-show="activeTab === 'new'" style="display: none;">
+                    <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                        <template x-for="i in 5" :key="i"><div class="bg-white rounded-lg shadow-sm overflow-hidden group text-center"><a href="#" class="block relative aspect-square"><img src="shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png" alt="Product" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"><div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><span class="text-white bg-brand-primary py-2 px-5 rounded-button text-sm font-bold">+ Add to cart</span></div></a><div class="p-4 flex flex-col gap-2"><p class="text-xs text-gray-500">Bobai</p><h3 class="text-sm font-semibold text-brand-text h-10">BOBAI Sunscreen Stick SPF 50+</h3><p class="text-md font-bold text-brand-primary">LE 450.00</p><div class="text-xs text-gray-400">9 reviews</div></div></div></template>
+                    </div>
+                </div>
+                <div x-show="activeTab === 'selling'" style="display: none;">
+                     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
+                        <template x-for="i in 5" :key="i"><div class="bg-white rounded-lg shadow-sm overflow-hidden group text-center"><a href="#" class="block relative aspect-square"><img src="shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=400.png" alt="Product" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"><div class="absolute inset-0 bg-black bg-opacity-20 flex items-center justify-center opacity-0 group-hover:opacity-100 transition"><span class="text-white bg-brand-primary py-2 px-5 rounded-button text-sm font-bold">+ Add to cart</span></div></a><div class="p-4 flex flex-col gap-2"><p class="text-xs text-gray-500">SHAAN</p><h3 class="text-sm font-semibold text-brand-text h-10">Shaan Body Milk 300 ml</h3><p class="text-md font-bold text-brand-primary">LE 200.00</p><div class="text-xs text-gray-400">58 reviews</div></div></div></template>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- Explore Skin Products by type (2 cards with big overlay headings) -->
+        <section class="py-16 bg-white">
+            <div class="w-full flex justify-center">
+                 <div class="w-full max-w-7xl px-4 flex flex-col gap-10">
+                 <h2 class="text-3xl font-bold text-center text-brand-heading">Explore Skin Products by type</h2>
+                 <div class="grid grid-cols-1 md:grid-cols-2 gap-10">
+                     <!-- Card: SUN SCREENS -->
+                     <a href="#" class="block group">
+                         <div class="relative overflow-hidden rounded-3xl bg-white shadow-sm aspect-[1/1]">
+                             <img src="shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=1080.png" alt="Sun Screens" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                         </div>
+                     </a>
+
+                     <!-- Card: CLEANSER & MAKEUP REMOVER -->
+                     <a href="#" class="block group">
+                         <div class="relative overflow-hidden rounded-3xl bg-white shadow-sm aspect-[1/1]">
+                             <img src="shop/files/2_06649fc4-b89f-49b0-993b-d54889ba1d62_v=1737462058&width=1080.png" alt="Cleanser & Makeup Remover" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                         </div>
+                     </a>
+
+                     <!-- Card: WHITENING -->
+                     <a href="#" class="block group">
+                         <div class="relative overflow-hidden rounded-3xl bg-white shadow-sm aspect-[1/1]">
+                             <img src="shop/files/Whitening_Cleanser_2_v=1730811118&width=1200.png" alt="Whitening" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                         </div>
+                     </a>
+
+                     <!-- Card: FACE & BODY MOISTURIZERS -->
+                     <a href="#" class="block group">
+                         <div class="relative overflow-hidden rounded-3xl bg-white shadow-sm aspect-[1/1]">
+                             <img src="shop/files/Face_Body_moisturizer_v=1752400650&width=1100.png" alt="Face & Body Moisturizers" class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+                         </div>
+                     </a>
+                 </div>
+                 </div>
+            </div>
+        </section>
+
+        <!-- Explore Hair Care Section -->
+        <section class="py-16 bg-white">
+            <div class="w-full flex justify-center">
+                <div class="w-full max-w-7xl px-4 flex flex-col gap-10">
+                <h2 class="text-2xl font-semibold text-center text-brand-heading">Explore Hair Care by Product Type</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                    <a href="#" class="relative rounded-lg overflow-hidden block group aspect-square"><img src="shop/collections/Sunscreen_1320_x_1480_px_v=1752474059&width=1200.jpg" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"><div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"><h3 class="text-white text-2xl font-bold">Shampoo</h3></div></a>
+                    <a href="#" class="relative rounded-lg overflow-hidden block group aspect-square"><img src="shop/collections/Sunscreen_1320_x_1480_px_1100_x_1400_px_4_v=1752473684&width=1200.jpg" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"><div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"><h3 class="text-white text-2xl font-bold">Hair Styling</h3></div></a>
+                    <a href="#" class="relative rounded-lg overflow-hidden block group aspect-square"><img src="shop/collections/Sunscreen_1320_x_1480_px_1100_x_1400_px_1_v=1752474408&width=1200.jpg" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"><div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"><h3 class="text-white text-2xl font-bold">Serum & Mask</h3></div></a>
+                    <a href="#" class="relative rounded-lg overflow-hidden block group aspect-square"><img src="shop/collections/nutrition_314x479_copy_v=1752475625&width=1200.png" class="w-full h-full object-cover transition-transform duration-300 group-hover:scale-110"><div class="absolute inset-0 bg-black bg-opacity-40 flex items-center justify-center"><h3 class="text-white text-2xl font-bold">Hair Nutrition</h3></div></a>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        
+
+        
+
+        <!-- Let customers speak for us (Slider redesigned) -->
+        <section x-data="{
+            reviews: [
+                { title: 'Great moisturizer 👍', text: 'Will buy it again! One of the best moisturizers I\'ve ever used', author: 'Fatima', product: 'GLAMY LAB Hydra Intense Cream 50 gm', image: 'shop/files/GLAMYLABWhiteningcreamSPF3050gm_1_v=1715815530&width=500.png' },
+                { title: 'Starville facial cleanser', text: 'Perfect for oily skin is so gently and handle acnes', author: 'Sara Ahmed', product: 'Starville Acne Prone Skin Facial Cleanser 400 ml', image: 'shop/files/StarvilleAcneProneSkinFacialCleanser400ml_v=1715818307&width=500.png' },
+                { title: 'النتيجة رائعة', text: 'منظف لطيف بزيت شجرة الشاي برائحة منعشة مناسبة جدًا لوظيفته', author: 'R.R.', product: 'Shaan Intimate Feminine Cleanser 250 ml', image: 'shop/files/Shaan_-_Make_Up_Remover_-_1_v=1748175554&width=500.png' },
+                { title: 'Amazing', text: 'Excellent make up remover for all skin types specially sensitive one ♥️', author: 'Noha Magdy', product: 'Starville Micellar Water 100 ml', image: 'shop/files/StarvilleMicellarWater100ml_v=1715818447&width=500.png' }
+            ],
+            names: ['Ahmed', 'Sara', 'Omar', 'Mariam', 'Fatima', 'Yara', 'Ali', 'Khaled', 'Nour', 'Laila', 'Hassan', 'Youssef', 'Reem', 'Huda', 'Tarek'],
+            start: 0,
+            perView: 1,
+            updatePerView() { this.perView = window.innerWidth >= 1024 ? 3 : (window.innerWidth >= 768 ? 2 : 1) },
+            randomizeTitles() { this.reviews = this.reviews.map(r => ({ ...r, title: this.names[Math.floor(Math.random()*this.names.length)] })); },
+            next() { if (this.start + this.perView < this.reviews.length) this.start += 1 },
+            prev() { if (this.start > 0) this.start -= 1 },
+            visible(i) { return i >= this.start && i < this.start + this.perView }
+        }" x-init="updatePerView(); randomizeTitles(); window.addEventListener('resize', () => updatePerView())" class="py-16 bg-white">
+            <div class="w-full flex justify-center">
+                <div class="w-full max-w-7xl px-4 flex flex-col gap-8">
+                <h2 class="text-2xl font-bold text-center text-brand-heading">Let customers speak for us</h2>
+                <div class="flex items-center justify-center gap-3">
+                    <div class="flex items-center text-yellow-400">
+                        <template x-for="i in 5" :key="i">
+                            <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.802 2.036a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.802-2.036a1 1 0 00-1.176 0l-2.802 2.036c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                        </template>
+                    </div>
+                    <p class="text-sm text-brand-primary">from 49550 reviews <span class="inline-block align-middle text-green-500">✓</span></p>
+                </div>
+
+                <div class="relative">
+                    <button @click="prev()" class="hidden md:flex absolute -left-2 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-200 rounded-full p-2 shadow hover:bg-gray-50" aria-label="prev">
+                        <img src="shop/t/53/assets/arrow-left_v=76393268265415640921754225006.svg" class="w-5 h-5" alt="prev">
+                    </button>
+                    <button @click="next()" class="hidden md:flex absolute -right-2 top-1/2 -translate-y-1/2 z-10 bg-white border border-gray-200 rounded-full p-2 shadow hover:bg-gray-50" aria-label="next">
+                        <img src="shop/t/53/assets/arrow-right_v=145833476934664455061754225006.svg" class="w-5 h-5" alt="next">
+                    </button>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                        <template x-for="(r, idx) in reviews" :key="idx">
+                            <div x-show="visible(idx)" x-transition class="text-center" style="display: none;">
+                                <div class="flex items-center justify-center gap-1 text-yellow-400" aria-label="rating">
+                                    <template x-for="i in 5" :key="i">
+                                        <svg class="w-5 h-5" viewBox="0 0 20 20" fill="currentColor"><path d="M9.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.802 2.036a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.802-2.036a1 1 0 00-1.176 0l-2.802 2.036c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"/></svg>
+                                    </template>
+                                </div>
+                                <h3 class="font-bold text-brand-primary" x-text="r.title"></h3>
+                                <p class="text-sm text-gray-700" x-text="r.text"></p>
+                                <div class="text-sm text-brand-primary" x-text="r.author"></div>
+                                <div class="flex flex-col items-center gap-2">
+                                    <img :src="r.image" alt="product" class="h-16 object-contain">
+                                    <div class="text-sm text-brand-primary" x-text="r.product"></div>
+                                </div>
+                            </div>
+                        </template>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+
+        <!-- About + Icons Section (exact look) -->
+        <section class="bg-brand-primary text-white">
+            <div class="w-full flex justify-center">
+                <div class="w-full max-w-4xl px-4 py-16 text-center flex flex-col gap-6">
+                    <h3 class="uppercase tracking-widest text-sm md:text-base font-bold text-brand-secondary">The e-care shop</h3>
+                    <div class="flex flex-col gap-4">
+                        <p class="text-lg md:text-xl font-light leading-relaxed text-gray-100">
+                            <span class="font-semibold text-white">EParkville.com</span> is an online platform specialized in offering dermo-cosmetics products through an easy and user friendly experience.
+                        </p>
+                        <p class="text-lg md:text-xl font-light leading-relaxed text-gray-100">
+                            Our Online Catalogue features solutions targeting <span class="font-semibold text-white">skin</span>, <span class="font-semibold text-white">hair</span> and <span class="font-semibold text-white">baby</span> concerns and needs as well as daily care routines.
+                        </p>
+                    </div>
+                </div>
+            </div>
+            <div class="bg-white text-brand-primary">
+                <div class="w-full flex justify-center">
+                    <div class="w-full max-w-7xl px-4 py-16">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-12 text-center">
+                        <div class="group hover:scale-105 transition-transform duration-300 flex flex-col items-center gap-4">
+                            <div class="flex justify-center">
+                                <img src="shop/files/Offers_v=1683122500&width=390.png" alt="offers" class="h-24 md:h-32 lg:h-40 object-contain group-hover:scale-110 transition-transform duration-300">
+                            </div>
+                            <h4 class="uppercase tracking-widest text-base md:text-lg font-bold">Offers</h4>
+                            <p class="text-sm md:text-base text-gray-600 leading-relaxed">Enjoy our bundled offers on your favorite products</p>
+                        </div>
+                        <div class="group hover:scale-105 transition-transform duration-300 flex flex-col items-center gap-4">
+                            <div class="flex justify-center">
+                                <img src="shop/files/Extra-points_v=1683122580&width=400.png" alt="extra points" class="h-24 md:h-32 lg:h-40 object-contain group-hover:scale-110 transition-transform duration-300">
+                            </div>
+                            <h4 class="uppercase tracking-widest text-base md:text-lg font-bold">Loyalty Program</h4>
+                            <p class="text-sm md:text-base text-gray-600 leading-relaxed">Join our loyalty program and earn points on every purchase you make</p>
+                        </div>
+                        <div class="group hover:scale-105 transition-transform duration-300 flex flex-col items-center gap-4">
+                            <div class="flex justify-center">
+                                <img src="shop/files/online-shop_v=1683122593&width=400.png" alt="shop online" class="h-24 md:h-32 lg:h-40 object-contain group-hover:scale-110 transition-transform duration-300">
+                            </div>
+                            <h4 class="uppercase tracking-widest text-base md:text-lg font-bold">Shopping</h4>
+                            <p class="text-sm md:text-base text-gray-600 leading-relaxed">Fast and Secure Online shopping checkout and payments</p>
+                        </div>
+                    </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+        
+        <!-- FAQ Section -->
+        <section class="py-16 bg-brand-secondary">
+            <div class="w-full flex justify-center">
+                <div class="w-full max-w-4xl px-4 flex flex-col gap-10">
+                <h2 class="text-3xl font-bold text-center text-brand-primary">Frequently Asked Questions</h2>
+                
+                <style>
+                    .faq-container {
+                        display: grid;
+                        grid-template-columns: 1fr;
+                        gap: 2.5rem 2.5rem;
+                    }
+                    
+                    @media (min-width: 768px) {
+                        .faq-container {
+                            grid-template-columns: 1fr 1fr;
+                        }
+                    }
+                    
+                    .faq-item {
+                        background: white;
+                        border-radius: 8px;
+                        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+                        overflow: hidden;
+                    }
+                    
+                    .faq-radio {
+                        display: none;
+                    }
+                    
+                    .faq-label {
+                        display: flex;
+                        justify-content: space-between;
+                        align-items: center;
+                        padding: 1rem;
+                        cursor: pointer;
+                        font-weight: 600;
+                        color: rgb(42, 57, 123);
+                        transition: background-color 0.3s ease;
+                    }
+                    
+                    .faq-label:hover {
+                        background-color: #f8f9fa;
+                    }
+                    
+                    .faq-icon {
+                        font-size: 1.5rem;
+                        font-weight: bold;
+                        transition: transform 0.3s ease;
+                        color: rgb(42, 57, 123);
+                    }
+                    
+                    .faq-content {
+                        max-height: 0;
+                        overflow: hidden;
+                        transition: max-height 0.3s ease;
+                        background-color: #f8f9fa;
+                    }
+                    
+                    .faq-radio:checked + .faq-label .faq-icon {
+                        transform: rotate(45deg);
+                    }
+                    
+                    .faq-radio:checked ~ .faq-content {
+                        max-height: 500px;
+                    }
+                    
+                    .faq-text {
+                        padding: 1rem;
+                        color: rgb(42, 57, 123);
+                        font-size: 0.875rem;
+                        line-height: 1.5;
+                    }
+                    
+                    .faq-text p {
+                        margin-bottom: 0.5rem;
+                    }
+                    
+                    .faq-text p:last-child {
+                        margin-bottom: 0;
+                    }
+                </style>
+                
+                <div class="faq-container">
+                    <div class="flex flex-col gap-8">
+                        <h3 class="font-bold text-xl text-brand-primary">Order Confirmation</h3>
+                        <div class="flex flex-col gap-4">
+                            <div class="faq-item">
+                                <input type="radio" name="faq-group-1" id="faq1" class="faq-radio">
+                                <label for="faq1" class="faq-label">
+                                    <span>What is the payment method ?</span>
+                                    <span class="faq-icon">+</span>
+                                </label>
+                                <div class="faq-content">
+                                    <div class="faq-text">
+                                        <p>You can choose to pay for your order online by any payment methods you like as Credit Card, Mobile Wallet or Meeza.</p>
+                                        <p>You can choose also to pay for your order Cash on Delivery.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <input type="radio" name="faq-group-1" id="faq2" class="faq-radio">
+                                <label for="faq2" class="faq-label">
+                                    <span>What Happens after I place an Order?</span>
+                                    <span class="faq-icon">+</span>
+                                </label>
+                                <div class="faq-content">
+                                    <div class="faq-text">
+                                        <p>You will be contacted by our Customer Service Team to confirm your order details and Address.</p>
+                                        <p>Then your Order will be ready for shipping.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <input type="radio" name="faq-group-1" id="faq3" class="faq-radio">
+                                <label for="faq3" class="faq-label">
+                                    <span>What Happens if I miss the Order Confirmation Call?</span>
+                                    <span class="faq-icon">+</span>
+                                </label>
+                                <div class="faq-content">
+                                    <div class="faq-text">
+                                        <p>Our Customer Service team will try to contact you 3 times on 3 different days.</p>
+                                        <p>In case we fail to reach you your order will be cancelled.</p>
+                                        <p>At any time you wish to confirm your cancelled order, you can contact us on 15440 and your order will be confirmed with same details and any discount applied or, you can place a new order of your choice.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <input type="radio" name="faq-group-1" id="faq4" class="faq-radio">
+                                <label for="faq4" class="faq-label">
+                                    <span>What if I have Any question or a problem with my order or delivery?</span>
+                                    <span class="faq-icon">+</span>
+                                </label>
+                                <div class="faq-content">
+                                    <div class="faq-text">
+                                        <p>You can contact us through our contact page or our hotline 15440</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex flex-col gap-8">
+                        <h3 class="font-bold text-xl text-brand-primary">Shipping and Delivery</h3>
+                        <div class="flex flex-col gap-4">
+                            <div class="faq-item">
+                                <input type="radio" name="faq-group-2" id="faq5" class="faq-radio">
+                                <label for="faq5" class="faq-label">
+                                    <span>Do you ship anywhere?</span>
+                                    <span class="faq-icon">+</span>
+                                </label>
+                                <div class="faq-content">
+                                    <div class="faq-text">
+                                        <p>Yes, we ship all over Egypt. Shipping costs will apply, and will be added at checkout.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="faq-item">
+                                <input type="radio" name="faq-group-2" id="faq6" class="faq-radio">
+                                <label for="faq6" class="faq-label">
+                                    <span>How long will it take to get my order?</span>
+                                    <span class="faq-icon">+</span>
+                                </label>
+                                <div class="faq-content">
+                                    <div class="faq-text">
+                                        <p>After confirmation call with customer service. Orders processed here will take 3-5 business days to arrive.</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- =========== Footer Section =========== -->
+    <footer class="bg-brand-primary text-white pt-12 pb-6">
+        <div class="w-full flex justify-center">
+            <div class="w-full max-w-7xl px-4">
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="font-bold text-lg">e-Parkville</h3>
+                    <p class="text-sm text-gray-300">Tax Registration Number is Tax Number 328-210-366.</p>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">Menu</h3>
+                    <ul class="flex flex-col gap-2 text-sm">
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">About Us</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Contact Us</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Terms and Conditions</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-white transition">Refund policy</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h3 class="font-bold text-lg">Follow us On Social Media</h3>
+                    <div class="flex gap-4">
+                        <a href="#" class="text-gray-300 hover:text-white transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M22 12c0-5.523-4.477-10-10-10S2 6.477 2 12c0 4.991 3.657 9.128 8.438 9.878v-6.987h-2.54V12h2.54V9.797c0-2.506 1.492-3.89 3.777-3.89 1.094 0 2.238.195 2.238.195v2.46h-1.26c-1.243 0-1.63.771-1.63 1.562V12h2.773l-.443 2.89h-2.33v6.988C18.343 21.128 22 16.991 22 12z" clip-rule="evenodd" /></svg></a>
+                        <a href="#" class="text-gray-300 hover:text-white transition"><svg class="w-6 h-6" fill="currentColor" viewBox="0 0 24 24"><path fill-rule="evenodd" d="M12.315 2c2.43 0 2.784.013 3.808.06 1.064.049 1.791.218 2.427.465a4.902 4.902 0 011.772 1.153 4.902 4.902 0 011.153 1.772c.247.636.416 1.363.465 2.427.048 1.024.06 1.378.06 3.808s-.012 2.784-.06 3.808c-.049 1.064-.218 1.791-.465 2.427a4.902 4.902 0 01-1.153 1.772 4.902 4.902 0 01-1.772 1.153c-.636.247-1.363.416-2.427.465-1.024.048-1.378.06-3.808.06s-2.784-.012-3.808-.06c-1.064-.049-1.791-.218-2.427-.465a4.902 4.902 0 01-1.772-1.153 4.902 4.902 0 01-1.153-1.772c-.247-.636-.416-1.363-.465-2.427-.048-1.024-.06-1.378-.06-3.808s.012-2.784.06-3.808c.049-1.064.218 1.791.465-2.427a4.902 4.902 0 011.153-1.772A4.902 4.902 0 016.343 2.525c.636-.247 1.363-.416 2.427-.465C9.793 2.013 10.147 2 12.315 2zm0 1.623c-2.392 0-2.73.01-3.688.055-1.002.045-1.52.2-1.928.372a3.284 3.284 0 00-1.18 1.18c-.173.408-.328.926-.372 1.928-.045.958-.055 1.296-.055 3.688s.01 2.73.055 3.688c.045 1.002.2 1.52.372 1.928a3.284 3.284 0 001.18 1.18c.408.173.926.328 1.928.372.958.045 1.296.055 3.688.055s2.73-.01 3.688-.055c1.002-.045 1.52-.2 1.928-.372a3.284 3.284 0 001.18-1.18c.173-.408.328.926.372-1.928.045-.958.055-1.296-.055-3.688s-.01-2.73-.055-3.688c-.045-1.002-.2-1.52-.372-1.928a3.284 3.284 0 00-1.18-1.18c-.408-.173-.926-.328-1.928-.372-.958-.045-1.296-.055-3.688-.055zM12.315 8.167a4.148 4.148 0 100 8.296 4.148 4.148 0 000-8.296zm0 6.673a2.525 2.525 0 110-5.05 2.525 2.525 0 010 5.05z" clip-rule="evenodd" /></svg></a>
+                    </div>
+                </div>
+                 <div>
+                     <h3 class="font-bold text-lg">We accept</h3>
+                     <div class="flex items-center gap-2">
+                         <img src="https://fzsA2ciWRjNP.com/cdn/shopifycloud/shopify/assets/payment_icons/visa-319d545c6fd255c9aad55bd3105f2042.svg" class="h-8 bg-white rounded-md p-1">
+                         <img src="https://fzsA2ciWRjNP.com/cdn/shopifycloud/shopify/assets/payment_icons/master-173035bc8124581983d42d878c62e154.svg" class="h-8 bg-white rounded-md p-1">
+                         <img src="https://fzsA2ciWRjNP.com/cdn/shopifycloud/shopify/assets/payment_icons/american_express-2264c9b8b57b23b0b0f7118e6ca7418e.svg" class="h-8 bg-white rounded-md p-1">
+                     </div>
+                 </div>
+            </div>
+            
+            <div class="border-t border-gray-700 pt-6 text-center text-sm text-gray-400">
+                <p>&copy; 2025 E Parkville. All Rights Reserved. | Customer Service: 15440</p>
+            </div>
+        </div>
+        </div>
+    </footer>
+    
+    <!-- Cookie Policy Bar -->
+    <div x-data="{show:true}" x-show="show" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow z-50" style="display: none;">
+        <div class="w-full flex justify-center">
+            <div class="w-full max-w-7xl px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-2 text-sm text-brand-primary">
+            <p>Cookie policy — I agree to the processing of my data in accordance with the Privacy policy.</p>
+            <div class="flex gap-2">
+                <button @click="show=false" class="px-4 py-2 rounded-button bg-brand-primary text-white font-semibold">Accept</button>
+                <button @click="show=false" class="px-4 py-2 rounded-button border border-brand-primary text-brand-primary font-semibold">Decline</button>
+            </div>
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>
