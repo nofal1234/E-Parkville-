@@ -7,6 +7,9 @@
     <title>Empty Cart - E Parkville</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+    
+    <!-- Custom JavaScript Functions -->
+    <script src="app.js"></script>
     <script>
         tailwind.config = {
             theme: {
@@ -42,14 +45,7 @@
     </style>
 </head>
 <body 
-    x-data="{
-        mobileMenuOpen: false,
-        searchOpen: false,
-        cart: [],
-        get cartItemCount() {
-            return this.cart.reduce((total, item) => total + item.quantity, 0);
-        }
-    }"
+    x-data="createNullPage()"
     class="bg-white"
 >
     <header class="bg-white shadow-sm sticky top-0 z-50">
@@ -76,7 +72,7 @@
                     </a>
                 </div>
                 <div class="flex items-center gap-4" dir="ltr">
-                    <div x-data="{ openLang: false, selectedLang: 'English' }" class="relative">
+                    <div x-data="createLanguageSelector()" class="relative">
                         <button @click="openLang = !openLang" class="flex items-center gap-2 px-3 py-2 text-brand-primary hover:bg-gray-50 rounded-lg transition-colors">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.95-4H6.05a6.5 6.5 0 001.9 2.71c.39-.8.71-1.78.9-2.71h4.1zm.73-2a6.47 6.47 0 00.18-2H5.14a6.47 6.47 0 00.18 2h9.36zM8.85 6c-.19-.93-.51-1.91-.9-2.71A6.5 6.5 0 006.05 6h2.8zm2.3 0h2.8a6.5 6.5 0 00-1.9-2.71c-.39.8-.71 1.78-.9 2.71zm-2.3 8c.19.93.51 1.91.9 2.71.79-.64 1.41-1.63 1.9-2.71h-2.8zM4.06 8a6.47 6.47 0 000 2h11.88a6.47 6.47 0 000-2H4.06z"/></svg>
                             <span class="hidden md:inline text-sm font-medium" x-text="selectedLang"></span>

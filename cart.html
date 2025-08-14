@@ -11,6 +11,9 @@
     
     <!-- Alpine.js CDN -->
     <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.13.5/dist/cdn.min.js"></script>
+    
+    <!-- Custom JavaScript Functions -->
+    <script src="app.js"></script>
 
     <!-- Tailwind CSS Configuration -->
     <script>
@@ -50,62 +53,7 @@
 </head>
 
 <body 
-    x-data="{
-        mobileMenuOpen: false,
-        searchOpen: false,
-        cart: [
-            { id: 101, name: 'Bobai Sunscreen Stick SPF 50+', brand: 'BOBAI', price: 450.00, originalPrice: 500.00, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png', quantity: 1 },
-            { id: 102, name: 'Shaan Body Milk 300 ml', brand: 'SHAAN', price: 200.00, originalPrice: null, image: 'shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=400.png', quantity: 2 },
-            { id: 103, name: 'Starville Acne Prone Skin Facial Cleanser', brand: 'STARVILLE', price: 220.00, originalPrice: 250.00, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png', quantity: 1 }
-        ],
-        recentlyViewed: [
-            { id: 201, name: 'Clary Hair Fresh Scalp Treatment', brand: 'CLARY', price: 314.50, originalPrice: 370.00, image: 'shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=200.png' },
-            { id: 202, name: 'DERMEDIC CAPILARTE Hair Serum', brand: 'DERMEDIC', price: 272.00, originalPrice: 320.00, image: 'shop/files/2_f1cb9aad-be8b-4d1a-83f1-25df0fee813a_v=1745932747&width=200.png' },
-            { id: 203, name: 'SuperKids Vitamin C Gummies', brand: 'SUPERKIDS', price: 180.00, originalPrice: null, image: 'shop/files/44065-Catalouge-Superkids01_v=1746522148&width=200.png' },
-            { id: 204, name: 'Bobai Sunscreen Stick SPF 50+', brand: 'BOBAI', price: 450.00, originalPrice: 500.00, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png' },
-            { id: 205, name: 'Shaan Body Milk 300 ml', brand: 'SHAAN', price: 200.00, originalPrice: null, image: 'shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=400.png' },
-            { id: 206, name: 'Starville Acne Prone Skin Facial Cleanser', brand: 'STARVILLE', price: 220.00, originalPrice: 250.00, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png' },
-            { id: 207, name: 'Clary Hair Leave In Conditioner', brand: 'CLARY', price: 300.00, originalPrice: null, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png' },
-            { id: 208, name: 'SuperKids Hair Shampoo', brand: 'SUPERKIDS', price: 150.00, originalPrice: 180.00, image: 'shop/files/44065-Catalouge-Superkids03_v=1744704018&width=200.png' },
-            { id: 209, name: 'Starville Face Moisturizer', brand: 'STARVILLE', price: 280.00, originalPrice: 320.00, image: 'shop/files/2_f1cb9aad-be8b-4d1a-83f1-25df0fee813a_v=1745932747&width=200.png' },
-            { id: 210, name: 'Bobai Anti-Aging Serum', brand: 'BOBAI', price: 380.00, originalPrice: 420.00, image: 'shop/files/1_5a22fdc6-ede1-4ab1-a560-473c9a4f2c05_v=1736851626&width=200.png' },
-            { id: 211, name: 'Shaan Hand Cream', brand: 'SHAAN', price: 120.00, originalPrice: null, image: 'shop/files/1_699ed77f-c965-47c2-a9cd-7894c49ea79e_v=1745932747&width=400.png' },
-            { id: 212, name: 'SuperKids Toothpaste', brand: 'SUPERKIDS', price: 90.00, originalPrice: 110.00, image: 'shop/files/44065-Catalouge-Superkids01_v=1746522148&width=200.png' }
-        ],
-        get cartTotal() {
-            return this.cart.reduce((total, item) => total + (item.price * item.quantity), 0);
-        },
-        get cartItemCount() {
-            return this.cart.reduce((total, item) => total + item.quantity, 0);
-        },
-        get subtotal() {
-            return this.cartTotal;
-        },
-        get shipping() {
-            return this.cartTotal > 500 ? 0 : 50;
-        },
-        get total() {
-            return this.subtotal + this.shipping;
-        },
-        updateQuantity(id, newQuantity) {
-            if (newQuantity < 1) return;
-            const item = this.cart.find(item => item.id === id);
-            if (item) {
-                item.quantity = newQuantity;
-            }
-        },
-        removeItem(id) {
-            this.cart = this.cart.filter(item => item.id !== id);
-        },
-        addToCart(product) {
-            const existingItem = this.cart.find(item => item.id === product.id);
-            if (existingItem) {
-                existingItem.quantity += 1;
-            } else {
-                this.cart.push({ ...product, quantity: 1 });
-            }
-        }
-    }"
+    x-data="createCartPage()"
     class="bg-white"
 >
     <!-- =========== Header Section =========== -->
@@ -144,7 +92,7 @@
                 <!-- Right Side: Icons & Language -->
                 <div class="flex items-center gap-2 md:gap-4 pr-2" dir="ltr">
                     <!-- Language Dropdown first -->
-                    <div x-data="{ openLang: false, selectedLang: 'English' }" class="relative">
+                    <div x-data="createLanguageSelector()" class="relative">
                         <button @click="openLang = !openLang" class="flex items-center gap-1 px-2 py-1 text-brand-primary hover:bg-gray-100 rounded">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.95-4H6.05a6.5 6.5 0 001.9 2.71c.39-.8.71-1.78.9-2.71h4.1zm.73-2a6.47 6.47 0 00.18-2H5.14a6.47 6.47 0 00.18 2h9.36zM8.85 6c-.19-.93-.51-1.91-.9-2.71A6.5 6.5 0 006.05 6h2.8zm2.3 0h2.8a6.5 6.5 0 00-1.9-2.71c-.39.8-.71 1.78-.9 2.71zm-2.3 8c.19.93.51 1.91.9 2.71.79-.64 1.41-1.63 1.9-2.71h-2.8zM4.06 8a6.47 6.47 0 000 2h11.88a6.47 6.47 0 000-2H4.06z"/></svg>
                             <span class="hidden md:inline" x-text="selectedLang"></span>
@@ -381,7 +329,7 @@
                 </div>
                 
                 <!-- Carousel Container -->
-                <div x-data="{ currentIndex: 0, itemsPerView: 4 }" class="relative">
+                <div x-data="createRecentlyViewedCarousel()" class="relative">
                     <!-- Navigation Buttons -->
                     <button 
                         @click="currentIndex = Math.max(0, currentIndex - 1)" 
@@ -500,7 +448,7 @@
     </footer>
     
     <!-- Cookie Policy Bar -->
-    <div x-data="{show:true}" x-show="show" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow z-50" style="display: none;">
+    <div x-data="createCookiePolicy()" x-show="show" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow z-50" style="display: none;">
         <div class="w-full flex justify-center">
             <div class="w-full max-w-7xl px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-2 text-sm text-brand-primary">
                 <p>Cookie policy — I agree to the processing of my data in accordance with the Privacy policy.</p>
